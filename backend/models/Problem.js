@@ -46,15 +46,56 @@ const problemSchema = new mongoose.Schema({
     boilerplateCode: {
         cpp: {
             type: String,
-            default: '#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n\nusing namespace std;\n\nint main() {\n    // Your code here\n    \n    return 0;\n}'
+            default: `#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <map>
+#include <set>
+#include <queue>
+#include <stack>
+#include <cmath>
+#include <climits>
+
+using namespace std;
+
+int main() {
+    // Read input
+    int n;
+    cin >> n;
+    
+    // Your solution here
+    
+    return 0;
+}`
         },
         java: {
             type: String,
-            default: 'import java.util.*;\nimport java.io.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n        \n    }\n}'
+            default: `import java.util.*;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        
+        // Read input
+        int n = sc.nextInt();
+        
+        // Your solution here
+        
+        sc.close();
+    }
+}`
         },
         python: {
             type: String,
-            default: '# Your code here\n\ndef main():\n    # Read input\n    pass\n\nif __name__ == "__main__":\n    main()'
+            default: `# Read input
+n = int(input())
+
+# Your solution here
+
+# Print output
+print(result)`
         }
     },
     createdAt: {

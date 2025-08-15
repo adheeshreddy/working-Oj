@@ -39,7 +39,18 @@ router.get('/:id', protect, async (req, res) => {
 // @desc    Create a new problem (Create)
 // @access  Private (Admin only)
 router.post('/', protect, authorizeRoles('admin'), async (req, res) => {
-    const { title, statement, input, output, constraints, timeLimit, memoryLimit, difficulty, tags } = req.body;
+    const { 
+        title, 
+        statement, 
+        input, 
+        output, 
+        constraints, 
+        timeLimit, 
+        memoryLimit, 
+        difficulty, 
+        tags,
+        boilerplateCode 
+    } = req.body;
 
     if (!title || !statement || !input || !output || !constraints || !timeLimit || !memoryLimit || !difficulty) {
         return res.status(400).json({ message: 'Please enter all required fields' });
@@ -56,6 +67,11 @@ router.post('/', protect, authorizeRoles('admin'), async (req, res) => {
             memoryLimit,
             difficulty,
             tags,
+            boilerplateCode: boilerplateCode || {
+                cpp: '#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n\nusing namespace std;\n\nint main() {\n    // Your code here\n    \n    return 0;\n}',
+                java: 'import java.util.*;\nimport java.io.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n        \n    }\n}',
+                python: '# Your code here\n\ndef main():\n    # Read input\n    pass\n\nif __name__ == "__main__":\n    main()'
+            }
         });
 
         const problem = await newProblem.save();
@@ -70,7 +86,18 @@ router.post('/', protect, authorizeRoles('admin'), async (req, res) => {
 // @desc    Update an existing problem (Update)
 // @access  Private (Admin only)
 router.put('/:id', protect, authorizeRoles('admin'), async (req, res) => {
-    const { title, statement, input, output, constraints, timeLimit, memoryLimit, difficulty, tags } = req.body;
+    const { 
+        title, 
+        statement, 
+        input, 
+        output, 
+        constraints, 
+        timeLimit, 
+        memoryLimit, 
+        difficulty, 
+        tags,
+        boilerplateCode 
+    } = req.body;
 
     try {
         const problem = await Problem.findById(req.params.id);
@@ -88,6 +115,7 @@ router.put('/:id', protect, authorizeRoles('admin'), async (req, res) => {
         problem.memoryLimit = memoryLimit || problem.memoryLimit;
         problem.difficulty = difficulty || problem.difficulty;
         problem.tags = tags || problem.tags;
+        problem.boilerplateCode = boilerplateCode || problem.boilerplateCode;
 
         const updatedProblem = await problem.save();
         res.status(200).json(updatedProblem);

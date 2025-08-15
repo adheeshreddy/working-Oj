@@ -8,9 +8,8 @@ const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 // --- CRUD Operations for Test Cases ---
 
 // @route   GET /api/problems/:problemId/testcases
-// @desc    Get all test cases for a specific problem (Read)
-// @access  Private (Admin only, or potentially authenticated users for sample test cases)
-// For now, we'll make it admin-only to view all test cases (including hidden ones).
+// @desc    Get all test cases for a specific problem (Read) - Admin only
+// @access  Private (Admin only)
 router.get('/:problemId/testcases', protect, authorizeRoles('admin'), async (req, res) => {
     try {
         const problemId = req.params.problemId;
@@ -18,6 +17,24 @@ router.get('/:problemId/testcases', protect, authorizeRoles('admin'), async (req
         res.status(200).json(testCases);
     } catch (error) {
         console.error(`Error fetching test cases for problem ${req.params.problemId}:`, error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// @route   GET /api/problems/:problemId/testcases/sample
+// @desc    Get only sample test cases for a specific problem (Read) - For regular users
+// @access  Private (Authenticated users)
+router.get('/:problemId/testcases/sample', protect, async (req, res) => {
+    try {
+        const problemId = req.params.problemId;
+        // Get only sample test cases (isHidden: false)
+        const sampleTestCases = await TestCase.find({ 
+            problemId: problemId, 
+            isHidden: false 
+        }).sort({ createdAt: 1 });
+        res.status(200).json(sampleTestCases);
+    } catch (error) {
+        console.error(`Error fetching sample test cases for problem ${req.params.problemId}:`, error);
         res.status(500).json({ message: 'Server Error' });
     }
 });

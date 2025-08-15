@@ -186,7 +186,7 @@ function AuthScreen({ onLogin, onRegister, message }) {
                 </div>
                 
                 {/* CSS Animation */}
-                <style jsx>{`
+                <style>{`
                     @keyframes float {
                         0%, 100% { transform: translateY(0px) rotate(0deg); }
                         50% { transform: translateY(-20px) rotate(180deg); }
@@ -333,7 +333,7 @@ function AuthScreen({ onLogin, onRegister, message }) {
             </div>
             
             {/* CSS Animation */}
-            <style jsx>{`
+            <style>{`
                 @keyframes float {
                     0%, 100% { transform: translateY(0px) rotate(0deg); }
                     50% { transform: translateY(-15px) rotate(180deg); }

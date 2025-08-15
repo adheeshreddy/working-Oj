@@ -48,23 +48,36 @@ const run = async (req, res) => {
         let outputMessage = executionResult.stdout || '';
         let compileMessage = executionResult.stderr || '';
 
-        if (executionResult.verdict === 'Compilation Error' || executionResult.verdict === 'Runtime Error' || executionResult.verdict === 'Internal Error') {
+        if (executionResult.verdict === 'Compilation Error' || executionResult.verdict === 'Runtime Error' || executionResult.verdict === 'Time Limit Exceeded' || executionResult.verdict === 'Internal Error') {
             res.json({
                 success: false,
                 output: '',
                 compileMessage: compileMessage,
+                verdict: executionResult.verdict,
             });
         } else {
             res.json({
                 success: true,
                 output: outputMessage.trim(),
                 compileMessage: '',
+                verdict: 'Passed',
             });
         }
 
     } catch (error) {
         console.error("Run Catch Block Error:", error);
         let cleanError = error.stderr || error.message || "Unknown error";
+        let verdict = 'Internal Error';
+        
+        // Determine the type of error
+        if (error.killed && error.signal === 'SIGTERM') {
+            verdict = 'Time Limit Exceeded';
+            cleanError = 'Time limit exceeded. Your code took too long to execute.';
+        } else if (cleanError.includes('error:') || cleanError.includes('compilation')) {
+            verdict = 'Compilation Error';
+        } else if (cleanError.includes('runtime') || cleanError.includes('segmentation')) {
+            verdict = 'Runtime Error';
+        }
         
         if (filePath) {
             cleanError = cleanError.replace(new RegExp(filePath.replace(/\\/g, '\\\\'), 'g'), 'YourCode.' + language);
@@ -78,6 +91,7 @@ const run = async (req, res) => {
             message: "Compilation or Execution Error",
             error: cleanError,
             compileMessage: cleanError,
+            verdict: verdict,
         });
     } finally {
         if (filePath) {

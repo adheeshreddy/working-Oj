@@ -13,12 +13,9 @@ import ReactMarkdown from 'react-markdown';
 // API URLs
 const api_url = import.meta.env.VITE_SERVER;
 const api_com = import.meta.env.VITE_COMPILER;
-const SUBMISSION_API_BASE_URL = ` ${api_url}/api/submissions`;
-const COMPILER_RUN_URL = ` ${api_com}/run`;
-const DRAFT_API_BASE_URL =  ` ${api_url}/api/drafts`;
-// New API URL for the backend's AI review endpoint
-const AI_REVIEW_API_URL =  ` ${api_url}/api/ai-review`;
-
+const SUBMISSION_API_BASE_URL = `${api_url}/api/submissions`;
+const DRAFT_API_BASE_URL = `${api_url}/api/drafts`;
+const AI_REVIEW_API_URL = `${api_url}/api/ai-review`;
 
 function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
     const [code, setCode] = useState('');
@@ -33,13 +30,32 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
     const [executionTime, setExecutionTime] = useState(0);
     const [memoryUsed, setMemoryUsed] = useState(0);
     const [isRunningCustomTest, setIsRunningCustomTest] = useState(false);
+    const [isRunningSampleTest, setIsRunningSampleTest] = useState(false);
     const [verdicts, setVerdicts] = useState([]);
     const [totalTime, setTotalTime] = useState(null);
     const [testResults, setTestResults] = useState([]);
+    const [sampleTestCases, setSampleTestCases] = useState([]);
+    const [currentTestCaseIndex, setCurrentTestCaseIndex] = useState(0);
 
     // State for AI review content and loading status
     const [aiReviewContent, setAiReviewContent] = useState('');
     const [isAIRunning, setIsAIRunning] = useState(false);
+
+    // Load sample test cases when component mounts
+    useEffect(() => {
+        const loadSampleTestCases = async () => {
+            if (!problem || !problem._id) return;
+            try {
+                const token = localStorage.getItem('token');
+                const config = { headers: { Authorization: `Bearer ${token}` } };
+                const response = await axios.get(`${api_url}/api/problems/${problem._id}/testcases/sample`, config);
+                setSampleTestCases(response.data);
+            } catch (error) {
+                console.error('Error loading sample test cases:', error);
+            }
+        };
+        loadSampleTestCases();
+    }, [problem]);
 
     // --- Draft Persistence Logic ---
     const debounce = (func, delay) => {
@@ -76,13 +92,20 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
                 if (response.data.draft) {
                     setCode(response.data.draft.code);
                     setLanguage(response.data.draft.language);
+                } else if (problem.boilerplateCode && problem.boilerplateCode[language]) {
+                    // Load boilerplate code if no draft exists
+                    setCode(problem.boilerplateCode[language]);
                 }
             } catch (error) {
                 console.error('Error loading draft:', error);
+                // Load boilerplate code if draft loading fails
+                if (problem.boilerplateCode && problem.boilerplateCode[language]) {
+                    setCode(problem.boilerplateCode[language]);
+                }
             }
         };
         loadDraft();
-    }, [isAuthenticated, problem]);
+    }, [isAuthenticated, problem, language]);
 
     useEffect(() => {
         if (isAuthenticated && problem && problem._id && (code !== '' || language !== 'cpp')) {
@@ -90,33 +113,118 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
         }
     }, [code, language, problem, isAuthenticated, saveDraft]);
 
+    // Load boilerplate code when language changes or when no code exists
+    useEffect(() => {
+        if (problem && problem.boilerplateCode && problem.boilerplateCode[language]) {
+            // Load boilerplate if no code exists or if user wants to reset
+            if (!code || code.trim() === '') {
+                setCode(problem.boilerplateCode[language]);
+            }
+        }
+    }, [language, problem]);
+
     // --- Event Handlers ---
+    const handleLanguageChange = (newLanguage) => {
+        setLanguage(newLanguage);
+        // Load boilerplate code for the new language
+        if (problem && problem.boilerplateCode && problem.boilerplateCode[newLanguage]) {
+            setCode(problem.boilerplateCode[newLanguage]);
+        }
+    };
+
     const handleRunCode = async () => {
         setCompileMessage('');
         setOutputStdout('');
         setTestResults([]);
         setSubmissionMessage('');
-        setIsRunningCustomTest(true);
+        setIsRunningSampleTest(true);
         setActiveTab('test');
 
-        const currentInput = activeTab === 'customTest'
-            ? inputStdin
-            : (problem.testCases && problem.testCases.length > 0 ? problem.testCases[0].input : '');
+        try {
+            const token = localStorage.getItem('token');
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+            
+            const response = await axios.post(`${SUBMISSION_API_BASE_URL}/run-sample`, {
+                problemId: problem._id,
+                code: code,
+                language: language
+            }, config);
 
-        const runData = {
-            code,
-            language,
-            input: currentInput
-        };
+            const data = response.data;
+            setTestResults(data.verdicts || []);
+            
+            if (data.verdicts && data.verdicts.length > 0) {
+                const firstResult = data.verdicts[0];
+                setOutputStdout(firstResult.actualOutput || '');
+                setCompileMessage(firstResult.compileMessage || '');
+            }
+            
+            setSubmissionMessage(`Sample test cases executed! Passed: ${data.passedTestCases}/${data.totalTestCases}`);
+        } catch (error) {
+            console.error('Sample test execution error:', error);
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data?.compileMessage || 'Error during sample test execution.';
+            
+            // Handle specific error types
+            if (error.response?.data?.verdict === 'Time Limit Exceeded') {
+                setCompileMessage('Time Limit Exceeded (TLE)');
+                setOutputStdout('Your code took too long to execute. Check for infinite loops or inefficient algorithms.');
+            } else if (error.response?.data?.verdict === 'Compilation Error') {
+                setCompileMessage('Compilation Error');
+                setOutputStdout(errorMessage);
+            } else if (error.response?.data?.verdict === 'Runtime Error') {
+                setCompileMessage('Runtime Error');
+                setOutputStdout(errorMessage);
+            } else {
+                setCompileMessage('Execution Failed');
+                setOutputStdout(errorMessage);
+            }
+            setSubmissionMessage('Sample test execution failed');
+        } finally {
+            setIsRunningSampleTest(false);
+        }
+    };
+
+    const handleCustomRun = async () => {
+        setCompileMessage('');
+        setOutputStdout('');
+        setTestResults([]);
+        setSubmissionMessage('');
+        setIsRunningCustomTest(true);
+        setActiveTab('customTest');
 
         try {
-            const response = await axios.post(COMPILER_RUN_URL, runData);
-            setCompileMessage(response.data.error ? 'Compilation Error' : 'Successfully Executed');
-            setOutputStdout(response.data.output || response.data.error || '');
+            const token = localStorage.getItem('token');
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+            
+            const response = await axios.post(`${SUBMISSION_API_BASE_URL}/run-custom`, {
+                code: code,
+                language: language,
+                customInput: inputStdin
+            }, config);
+
+            const data = response.data;
+            setOutputStdout(data.output || '');
+            setCompileMessage(data.compileMessage || '');
+            setSubmissionMessage('Custom test executed successfully!');
         } catch (error) {
-            const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error during custom run.';
-            setCompileMessage('Execution Failed');
-            setOutputStdout(errorMessage);
+            console.error('Custom test execution error:', error);
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data?.compileMessage || 'Error during custom test execution.';
+            
+            // Handle specific error types
+            if (error.response?.data?.verdict === 'Time Limit Exceeded') {
+                setCompileMessage('Time Limit Exceeded (TLE)');
+                setOutputStdout('Your code took too long to execute. Check for infinite loops or inefficient algorithms.');
+            } else if (error.response?.data?.verdict === 'Compilation Error') {
+                setCompileMessage('Compilation Error');
+                setOutputStdout(errorMessage);
+            } else if (error.response?.data?.verdict === 'Runtime Error') {
+                setCompileMessage('Runtime Error');
+                setOutputStdout(errorMessage);
+            } else {
+                setCompileMessage('Execution Failed');
+                setOutputStdout(errorMessage);
+            }
+            setSubmissionMessage('Custom test execution failed');
         } finally {
             setIsRunningCustomTest(false);
         }
@@ -165,27 +273,53 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
         setIsAIRunning(true);
         setActiveTab('aiReview'); // Switch to AI Review tab
 
-        // The payload now only contains the code and language
+        // The payload now contains the code, language, and problem context
         const reviewData = {
             userCode: code,
             language: language,
+            problemId: problem?._id, // Include problem ID for context
         };
 
         try {
-            // Call your backend's API endpoint
-            const response = await axios.post(AI_REVIEW_API_URL, reviewData);
+            // Get the authentication token
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('No authentication token found. Please login again.');
+            }
+
+            // Call your backend's API endpoint with authentication
+            const response = await axios.post(AI_REVIEW_API_URL, reviewData, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             
             // Your backend returns a JSON object with a 'review' key
             if (response.data && response.data.review) {
                 setAiReviewContent(response.data.review);
+                
+                // Show additional message if it's a mock review
+                if (response.data.isMock) {
+                    console.log('Mock AI review generated. Add your Google Gemini API key for real reviews.');
+                }
             } else {
                 setAiReviewContent('AI review could not be generated. The response from the server was empty.');
             }
         } catch (error) {
             console.error('Error fetching AI review from backend:', error);
-            // Display the error message from the backend, or a generic one
-            const errorMessage = error.response?.data?.message || 'Failed to get AI review. Please try again.';
-            setAiReviewContent(`Error: ${errorMessage}`);
+            
+            // Handle specific error cases
+            if (error.response?.status === 401) {
+                setAiReviewContent('Error: Authentication failed. Please login again.');
+            } else if (error.response?.status === 400 && error.response?.data?.error === 'Missing API key') {
+                setAiReviewContent('Error: Google Gemini API key is not configured. Please contact the administrator.');
+            } else if (error.response?.status === 429) {
+                setAiReviewContent('Error: Rate limit exceeded. Please try again in a few minutes.');
+            } else if (error.response?.status === 408) {
+                setAiReviewContent('Error: Request timeout. The AI service is taking too long to respond.');
+            } else {
+                // Display the error message from the backend, or a generic one
+                const errorMessage = error.response?.data?.message || 'Failed to get AI review. Please try again.';
+                setAiReviewContent(`Error: ${errorMessage}`);
+            }
         } finally {
             setIsAIRunning(false);
         }
@@ -200,7 +334,7 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
         }
     };
 
-    const sampleInput = problem.testCases && problem.testCases.length > 0 ? problem.testCases[0].input : "No sample input available.";
+    const currentSampleInput = sampleTestCases.length > 0 ? sampleTestCases[currentTestCaseIndex]?.input : "No sample input available.";
 
     return (
         <>
@@ -284,6 +418,10 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
                 }
                 .action-bar { padding: 0.5rem 1rem; background-color: var(--dark-bg-lighter); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; }
                 pre.problem-block { background-color: var(--dark-bg-lighter); padding: 1rem; border-radius: 6px; border: 1px solid var(--border-color); white-space: pre-wrap; word-wrap: break-word; font-size: 0.9rem; }
+                .test-case-nav { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+                .test-case-btn { padding: 0.25rem 0.5rem; font-size: 0.8rem; border-radius: 4px; cursor: pointer; }
+                .test-case-btn.active { background-color: var(--accent-color); color: white; }
+                .test-case-btn:not(.active) { background-color: var(--dark-bg-lighter); color: var(--text-muted); }
             `}</style>
             
             {/* Your existing JSX (no changes needed here) */}
@@ -333,7 +471,7 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
                                     <select
                                         className="form-select form-select-sm"
                                         value={language}
-                                        onChange={(e) => setLanguage(e.target.value)}
+                                        onChange={(e) => handleLanguageChange(e.target.value)}
                                         style={{ width: 'auto', backgroundColor: '#3a3a3a', color: 'white', border: '1px solid #555' }}
                                     >
                                         <option value="cpp">C++</option>
@@ -355,21 +493,21 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
                                     <button
                                         onClick={handleRunCode}
                                         className="btn btn-outline-info rounded-pill px-3 py-1"
-                                        disabled={isSubmitting || isRunningCustomTest || isAIRunning}
+                                        disabled={isSubmitting || isRunningCustomTest || isRunningSampleTest || isAIRunning}
                                     >
-                                        {isRunningCustomTest ? 'Running...' : <><Play size={16} className="me-1" /> Run</>}
+                                        {isRunningSampleTest ? 'Running...' : <><Play size={16} className="me-1" /> Run</>}
                                     </button>
                                     <button
                                         onClick={handleCodeSubmit}
                                         className="btn btn-success rounded-pill px-4 py-1 fw-bold"
-                                        disabled={isSubmitting || isRunningCustomTest || isAIRunning}
+                                        disabled={isSubmitting || isRunningCustomTest || isRunningSampleTest || isAIRunning}
                                     >
                                         {isSubmitting ? 'Submitting...' : <><Send size={16} className="me-1" /> Submit</>}
                                     </button>
                                     <button
                                         onClick={handleGetAIReview}
                                         className="btn btn-outline-primary rounded-pill px-3 py-1"
-                                        disabled={isSubmitting || isRunningCustomTest || isAIRunning || !code}
+                                        disabled={isSubmitting || isRunningCustomTest || isRunningSampleTest || isAIRunning || !code}
                                     >
                                         {isAIRunning ? 'Getting AI Review...' : <><Code size={16} className="me-1" /> Get AI Review</>}
                                     </button>
@@ -392,10 +530,40 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
                                     <div className="console-body">
                                         {activeTab === 'test' && (
                                             <div>
+                                                {sampleTestCases.length > 0 && (
+                                                    <div className="test-case-nav">
+                                                        {sampleTestCases.map((_, index) => (
+                                                            <button
+                                                                key={index}
+                                                                className={`test-case-btn ${index === currentTestCaseIndex ? 'active' : ''}`}
+                                                                onClick={() => setCurrentTestCaseIndex(index)}
+                                                            >
+                                                                Test {index + 1}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
                                                 <h6 className="fw-bold text-info small mb-1">Input (stdin)</h6>
-                                                <pre className="problem-block">{sampleInput}</pre>
+                                                <pre className="problem-block">{currentSampleInput}</pre>
                                                 <h6 className="fw-bold text-info small mt-3 mb-1">Your Output (stdout)</h6>
                                                 <pre className="problem-block">{outputStdout || "Run code to see output..."}</pre>
+                                                {compileMessage && (
+                                                    <>
+                                                        <h6 className="fw-bold text-warning small mt-3 mb-1">Compilation/Execution Message</h6>
+                                                        <pre className="problem-block text-warning">{compileMessage}</pre>
+                                                    </>
+                                                )}
+                                                {testResults.length > 0 && (
+                                                    <>
+                                                        <h6 className="fw-bold text-info small mt-3 mb-1">Test Results</h6>
+                                                        {testResults.map((result, index) => (
+                                                            <div key={index} className={`d-flex justify-content-between p-2 rounded mb-1 ${result.status === 'Passed' ? 'bg-success bg-opacity-10' : 'bg-danger bg-opacity-10'}`}>
+                                                                <span className={result.status === 'Passed' ? 'text-success' : 'text-danger'}>Test Case {index + 1}</span>
+                                                                <span className="small text-muted">{result.status}</span>
+                                                            </div>
+                                                        ))}
+                                                    </>
+                                                )}
                                             </div>
                                         )}
                                         {activeTab === 'customTest' && (
@@ -409,7 +577,25 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
                                                     placeholder="Enter custom input here..."
                                                     style={{backgroundColor: '#2c2c2c', color: 'white', border: '1px solid #555'}}
                                                 ></textarea>
-                                                <button onClick={handleRunCode} className="btn btn-sm btn-info mt-2">Run with Custom Input</button>
+                                                <button 
+                                                    onClick={handleCustomRun} 
+                                                    className="btn btn-sm btn-info mt-2"
+                                                    disabled={isRunningCustomTest}
+                                                >
+                                                    {isRunningCustomTest ? 'Running...' : 'Run with Custom Input'}
+                                                </button>
+                                                {outputStdout && (
+                                                    <>
+                                                        <h6 className="fw-bold text-info small mt-3 mb-1">Your Output (stdout)</h6>
+                                                        <pre className="problem-block">{outputStdout}</pre>
+                                                    </>
+                                                )}
+                                                {compileMessage && (
+                                                    <>
+                                                        <h6 className="fw-bold text-warning small mt-3 mb-1">Compilation/Execution Message</h6>
+                                                        <pre className="problem-block text-warning">{compileMessage}</pre>
+                                                    </>
+                                                )}
                                             </div>
                                         )}
                                         {activeTab === 'verdict' && (
@@ -425,7 +611,9 @@ function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
                                                 )}
                                                 {verdicts.length > 0 ? verdicts.map((v, index) => (
                                                     <div key={index} className={`d-flex justify-content-between p-2 rounded mb-1 ${v.status === 'Passed' ? 'bg-success bg-opacity-10' : 'bg-danger bg-opacity-10'}`}>
-                                                        <span className={v.status === 'Passed' ? 'text-success' : 'text-danger'}>Test Case {index + 1}</span>
+                                                        <span className={v.status === 'Passed' ? 'text-success' : 'text-danger'}>
+                                                            Test Case {index + 1} {v.isHidden ? '(Hidden)' : '(Sample)'}
+                                                        </span>
                                                         <span className="small text-muted">{v.executionTime} ms | {v.memoryUsed} MB</span>
                                                     </div>
                                                 )) : <p className="text-muted text-center mt-3">Submit your code to see the verdict.</p>}
