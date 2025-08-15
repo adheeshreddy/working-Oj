@@ -1,4 +1,4 @@
-# 💻 CodeVM — Your Scalable Online Judge
+
 
 <p align="center">
   <a href="https://www.codevm.online">
