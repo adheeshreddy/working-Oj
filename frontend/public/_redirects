@@ -1,0 +1,5 @@
+/api/*   http://54.252.246.7:5000/:splat   200
+/compiler/*   http://54.252.246.7:9001/:splat   200
+
+# SPA routing (React Router)
+/*   /index.html   200
