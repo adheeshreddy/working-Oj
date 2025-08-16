@@ -10,7 +10,7 @@
   </a>
 </p>
 
-> **CodeVM** is a robust, full-stack online judge platform designed for competitive programming. It provides a secure, scalable, and intuitive environment for users to solve problems, compete in contests, and track their progress.
+> **AlgoNest** is a robust, full-stack online judge platform designed for competitive programming. It provides a secure, scalable, and intuitive environment for users to solve problems, compete in contests, and track their progress.
 
 ---
 

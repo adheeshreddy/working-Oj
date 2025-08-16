@@ -1,109 +1,24 @@
 <svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- 3D gradients for the circle -->
-    <radialGradient id="circleTop" cx="30%" cy="30%" r="70%">
-      <stop offset="0%" style="stop-color:#00ffff"/>
-      <stop offset="70%" style="stop-color:#0080ff"/>
-      <stop offset="100%" style="stop-color:#004080"/>
+    <linearGradient id="algonest-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00c6fb"/>
+      <stop offset="50%" stop-color="#005bea"/>
+      <stop offset="100%" stop-color="#7f53ac"/>
+    </linearGradient>
+    <radialGradient id="algonest-bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#e0f7fa"/>
+      <stop offset="100%" stop-color="#232946"/>
     </radialGradient>
-    
-    <linearGradient id="circleSide" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#004080"/>
-      <stop offset="100%" style="stop-color:#002040"/>
-    </linearGradient>
-    
-    <!-- Mixed VM gradients -->
-    <linearGradient id="vmMixed1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffffff"/>
-      <stop offset="30%" style="stop-color:#00ffff"/>
-      <stop offset="70%" style="stop-color:#ff00ff"/>
-      <stop offset="100%" style="stop-color:#ffffff"/>
-    </linearGradient>
-    
-    <linearGradient id="vmMixed2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#cccccc"/>
-      <stop offset="50%" style="stop-color:#0080ff"/>
-      <stop offset="100%" style="stop-color:#808080"/>
-    </linearGradient>
-    
-    <!-- Background -->
-    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
-      <stop offset="0%" style="stop-color:#1a1a2e"/>
-      <stop offset="100%" style="stop-color:#0a0a0a"/>
-    </radialGradient>
-    
-    <!-- Shadow filter -->
     <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="3" dy="5" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/>
-    </filter>
-    
-    <!-- Glow filter -->
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-      <feMerge> 
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#232946" flood-opacity="0.25"/>
     </filter>
   </defs>
-  
-
-  
-  <!-- Main circular container -->
-  <g transform="translate(150, 150)">
-    
-    <!-- 3D Circle - Shadow/Bottom -->
-    <circle cx="3" cy="5" r="120" fill="url(#circleSide)" opacity="0.6"/>
-    
-    <!-- 3D Circle - Main/Top -->
-    <circle cx="0" cy="0" r="120" fill="url(#circleTop)" stroke="#00cccc" stroke-width="2" filter="url(#shadow)"/>
-    
-    <!-- Inner rim for depth -->
-    <circle cx="0" cy="0" r="105" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-    
-    <!-- Mixed VM Design - Combined/Interwoven -->
-    <g transform="translate(0, 5)" filter="url(#glow)">
-      
-      <!-- Combined VM Shape - Top face -->
-      <polygon points="-50,-30 -35,40 -15,40 -30,-10 -10,-10 10,40 30,40 45,-30 25,-30 15,20 5,20 -5,-30 -25,-30 -35,20 -45,20" 
-               fill="url(#vmMixed1)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
-      
-      <!-- 3D depth - right side faces -->
-      <polygon points="45,-30 50,-25 50,45 30,45 30,40 45,40" 
-               fill="url(#vmMixed2)"/>
-      <polygon points="10,40 15,45 35,45 30,40" 
-               fill="url(#vmMixed2)"/>
-      <polygon points="-15,40 -10,45 15,45 10,40" 
-               fill="url(#vmMixed2)"/>
-      <polygon points="-35,40 -30,45 -10,45 -15,40" 
-               fill="url(#vmMixed2)"/>
-      
-      <!-- 3D depth - left side faces -->
-      <polygon points="-50,-30 -45,-25 -45,45 -35,45 -35,40 -50,40" 
-               fill="url(#vmMixed2)"/>
-      
-      <!-- 3D depth - top edges -->
-      <polygon points="-50,-30 -45,-25 50,-25 45,-30" 
-               fill="rgba(255,255,255,0.3)"/>
-      
-      <!-- Central connecting element -->
-      <polygon points="-10,-10 10,-10 15,20 5,20 0,5 -5,20 -15,20" 
-               fill="url(#vmMixed1)" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
-      
-      <!-- Central 3D depth -->
-      <polygon points="10,-10 15,-5 20,25 15,20" 
-               fill="url(#vmMixed2)"/>
-      <polygon points="-10,-10 -5,-5 -5,25 -10,20 -15,20 -15,-5" 
-               fill="url(#vmMixed2)"/>
-      
-    </g>
-    
-    <!-- Subtle inner glow -->
-    <circle cx="0" cy="0" r="85" fill="none" stroke="rgba(0,255,255,0.1)" stroke-width="15" opacity="0.4"/>
-    
-    <!-- Center highlight -->
-    <circle cx="-15" cy="-15" r="12" fill="rgba(255,255,255,0.15)" opacity="0.8"/>
-    
+  <circle cx="150" cy="150" r="140" fill="url(#algonest-bg)"/>
+  <g filter="url(#shadow)">
+    <!-- Stylized A -->
+    <polygon points="90,210 150,60 210,210 185,210 150,110 115,210" fill="url(#algonest-gradient)"/>
+    <!-- Stylized N (right side, geometric) -->
+    <polyline points="170,210 170,120 210,210" fill="none" stroke="url(#algonest-gradient)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-  
+  <text x="150" y="265" text-anchor="middle" font-size="38" font-family="Poppins, Arial, sans-serif" fill="#7f53ac" font-weight="bold" letter-spacing="2">AlgoNest</text>
 </svg>

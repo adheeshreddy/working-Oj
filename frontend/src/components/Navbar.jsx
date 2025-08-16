@@ -26,7 +26,7 @@ function Navbar({ isAuthenticated, userRole, onLogout, onNavigate, toggleTheme, 
                    onMouseLeave={e => e.target.style.transform = 'scale(1)'}>
                     <div className="position-relative me-3">
                         <img src="/codevm_logo.svg" 
-                             alt="CodeVM Logo" 
+                             alt="AlgoNest Logo" 
                              className="logo-image" 
                              style={{ 
                                  maxWidth: '38px', 
@@ -44,7 +44,7 @@ function Navbar({ isAuthenticated, userRole, onLogout, onNavigate, toggleTheme, 
                               WebkitTextFillColor: 'transparent',
                               textShadow: '0 0 20px rgba(167, 112, 239, 0.3)'
                           }}>
-                        CodeVM
+                        AlgoNest
                     </span>
                 </a>
                 

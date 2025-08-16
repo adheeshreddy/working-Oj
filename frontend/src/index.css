@@ -1,1 +1,42 @@
 @import "tailwindcss";
+
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+  background: linear-gradient(135deg, #e0f7fa 0%, #7f53ac 100%);
+  color: #232946;
+  min-height: 100vh;
+  margin: 0;
+  transition: background 0.4s, color 0.4s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.card {
+  background: rgba(255,255,255,0.7);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+  padding: 2em;
+  margin-bottom: 2em;
+  border: 1.5px solid rgba(127, 83, 172, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.btn-primary-gradient {
+  background: linear-gradient(90deg, #00c6fb 0%, #005bea 100%);
+  border: none;
+  color: #fff;
+  border-radius: 2rem;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0,198,251,0.15);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.btn-primary-gradient:hover {
+  background: linear-gradient(90deg, #005bea 0%, #00c6fb 100%);
+  box-shadow: 0 8px 32px rgba(0,198,251,0.25);
+}

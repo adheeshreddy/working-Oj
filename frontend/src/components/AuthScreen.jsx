@@ -143,7 +143,7 @@ function AuthScreen({ onLogin, onRegister, message }) {
                             >
                                 {/* Logo */}
                           <div className="text-center">
-                        <img src="/codevm_logo.svg" alt="CodeVM Logo" className="auth-logo mb-4" />
+                        <img src="/codevm_logo.svg" alt="AlgoNest Logo" className="auth-logo mb-4" />
                       
                     </div>
 
@@ -243,11 +243,11 @@ function AuthScreen({ onLogin, onRegister, message }) {
 
                                 {/* Logo */}
                                <div className="text-center">
-                        <img src="/codevm_logo.svg" alt="CodeVM Logo" className="auth-logo mb-4" />
+                        <img src="/codevm_logo.svg" alt="AlgoNest Logo" className="auth-logo mb-4" />
                       
                     </div>
                                 <h2 className="text-center mb-4 fw-bold" style={customStyles.textGradient}>
-                                    {isLoginMode ? 'Login to CodeVM' : 'Join CodeVM'}
+                                    {isLoginMode ? 'Login to AlgoNest' : 'Join AlgoNest'}
                                 </h2>
 
                             

@@ -1,4 +1,4 @@
-# 🚀 Quick Start Guide - CodeVM Online Judge
+# 🚀 Quick Start Guide - AlgoNest Online Judge
 
 Follow these exact steps to set up and test your online judge system.
 
@@ -160,7 +160,7 @@ node test-functionality.js
 You should see output like this:
 
 ```
-🧪 Testing CodeVM Online Judge Functionality
+🧪 Testing AlgoNest Online Judge Functionality
 
 1. Testing User Registration...
 ✅ User registration successful

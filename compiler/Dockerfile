@@ -1,27 +1,28 @@
-# Use a base image with a recent version of Node.js for Alpine Linux
+# Base Node image
 FROM node:18-alpine
 
-# Set the working directory for the application
+# Set working directory
 WORKDIR /app
 
-# Install necessary build tools and languages
-# apk is the package manager for Alpine Linux.
+# Install build tools and JDK
 RUN apk update && apk add --no-cache \
     g++ \
+    make \
     python3 \
-    py3-pip \
-    openjdk21
+    python3-dev \
+    openjdk17
 
-# The rest of the setup is for the Node.js server inside this container
-# Copy package files and install dependencies
+# Copy package.json and package-lock.json (if available)
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy all project files into the container
+# Copy the rest of the project files
 COPY . .
 
-# Expose the port for the compiler server
+# Expose compiler port
 EXPOSE 9000
 
-# Command to run the Node.js server
+# Run the compiler server
 CMD ["node", "index.js"]
