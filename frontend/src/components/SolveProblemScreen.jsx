@@ -13,9 +13,9 @@ import ReactMarkdown from 'react-markdown';
 // API URLs
 const api_url = import.meta.env.VITE_SERVER;
 const api_com = import.meta.env.VITE_COMPILER;
-const SUBMISSION_API_BASE_URL = `${api_url}/api/submissions`;
-const DRAFT_API_BASE_URL = `${api_url}/api/drafts`;
-const AI_REVIEW_API_URL = `${api_url}/api/ai-review`;
+const SUBMISSION_API_BASE_URL = `${api_url}/submissions`;
+const DRAFT_API_BASE_URL = `${api_url}/drafts`;
+const AI_REVIEW_API_URL = `${api_url}/ai-review`;
 
 function SolveProblemScreen({ problem, onClose, isAuthenticated }) {
     const [code, setCode] = useState('');

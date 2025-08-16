@@ -5,7 +5,7 @@ import { ListChecks, Filter, CheckCircle2, XCircle, Clock, MemoryStick } from 'l
 const api_url = import.meta.env.VITE_SERVER;
 
 
-const SUBMISSION_API_BASE_URL =  ` ${api_url}/api/submissions`;
+const SUBMISSION_API_BASE_URL =  ` ${api_url}/submissions`;
 
 function SubmissionsList({ userRole, isAuthenticated }) {
     const [submissions, setSubmissions] = useState([]);

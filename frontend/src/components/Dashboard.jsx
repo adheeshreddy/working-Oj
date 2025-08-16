@@ -4,8 +4,8 @@ import axios from 'axios';
 // FIX: Added all necessary lucide-react icon imports
 import { User as UserIcon, Mail, BarChart, Clock, Award, Activity, CheckCircle, LogOut, ListChecks, Tag as TagIcon, Gauge, CheckCircle2, XCircle, MemoryStick, TrendingUp, Calendar, Code2 } from 'lucide-react';
 const api_url = import.meta.env.VITE_SERVER;
-const USER_API_BASE_URL = ` ${api_url}/api/users`;
-const SUBMISSION_API_BASE_URL = ` ${api_url}/api/submissions`;
+const USER_API_BASE_URL = ` ${api_url}/users`;
+const SUBMISSION_API_BASE_URL = ` ${api_url}/submissions`;
 
 function Dashboard({ userRole, isAuthenticated }) {
     const [userData, setUserData] = useState(null);

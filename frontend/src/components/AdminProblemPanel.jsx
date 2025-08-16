@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 const api_url = import.meta.env.VITE_SERVER;
 // Base URL for your backend API
-const API_BASE_URL = ` ${api_url}/api/problems`;
+const API_BASE_URL = ` ${api_url}/problems`;
 
 function AdminProblemPanel({ userRole, isAuthenticated, onLogout, onSolveProblem }) {
     const [problems, setProblems] = useState([]);
