@@ -1,14 +1,6 @@
 
 
-<p align="center">
-  <a href="https://www.codevm.online">
-    <img src="https://img.shields.io/badge/Live_Site-www.codevm.online-blue?style=for-the-badge&logo=vercel" alt="Live Site">
-  </a>
-  &nbsp;&nbsp;
-  <a href="https://drive.google.com/drive/folders/1MERZ9veRAZ32EwlGROG-sm-31WQXkBix?usp=sharing">
-    <img src="https://img.shields.io/badge/Watch_Demo_Video-FF0000?style=for-the-badge&logo=youtube" alt="Demo Video">
-  </a>
-</p>
+
 
 > **AlgoNest** is a robust, full-stack online judge platform designed for competitive programming. It provides a secure, scalable, and intuitive environment for users to solve problems, compete in contests, and track their progress.
 
@@ -65,7 +57,7 @@
 | 📦 Database      | MongoDB                                  |
 | 🐳 Containers      | Docker                                   |
 | 🔒 Security      | JWT + Password Hashing + Docker Isolation |
-| ☁️ Hosting        | AWS EC2 + Nginx + Certbot SSL            |
+| ☁️ Hosting        | AWS EC2          |
 
 ---
 
@@ -77,4 +69,4 @@
 
 ---
 👨‍💻 Developed By
-**Venu Madhav Nadavala**
+**Malreddy Adheesh Reddy**

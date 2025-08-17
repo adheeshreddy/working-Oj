@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-echo 🚀 CodeVM Online Judge - Setup and Test Script
+echo 🚀 AlgoNest Online Judge - Setup and Test Script
 echo ================================================
 echo.
 
@@ -186,7 +186,7 @@ echo    Backend API: http://localhost:5000
 echo    Compiler Service: http://localhost:9000
 echo.
 echo 🔑 Login Credentials:
-echo    Admin: admin@codevm.com / admin123
+echo    Admin: admin@AlgoNest.com / admin123
 echo    Test User: test@example.com / test123
 echo.
 echo Press any key to close this window...

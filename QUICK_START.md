@@ -106,7 +106,7 @@ You should see output like:
 
 👤 Creating admin user...
 ✅ Admin user created successfully
-   Email: admin@codevm.com
+   Email: admin@AlgoNest.com
    Password: admin123
 
 📝 Creating sample problems...
@@ -202,7 +202,7 @@ You should see output like this:
 After setup, you can use these credentials:
 
 **Admin User:**
-- Email: `admin@codevm.com`
+- Email: `admin@AlgoNest.com`
 - Password: `admin123`
 
 **Test User (created by test script):**

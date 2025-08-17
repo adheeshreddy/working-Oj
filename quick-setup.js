@@ -2,7 +2,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🚀 Quick Setup for CodeVM Online Judge\n');
+console.log('🚀 Quick Setup for AlgoNest Online Judge\n');
 
 // Check if Node.js is installed
 try {
@@ -76,4 +76,4 @@ console.log('3. Start backend: cd backend && npm run dev');
 console.log('4. Start compiler: cd compiler && npm start');
 console.log('5. Start frontend: cd frontend && npm run dev');
 console.log('6. Run tests: node test-functionality.js');
-console.log('\n🔑 Default admin credentials: admin@codevm.com / admin123');
+console.log('\n🔑 Default admin credentials: admin@AlgoNest.com / admin123');

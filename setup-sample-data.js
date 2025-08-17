@@ -10,7 +10,7 @@ const TestCase = require('./backend/models/TestCase');
 // Sample data
 const adminUser = {
     name: 'Admin User',
-    email: 'admin@codevm.com',
+    email: 'admin@AlgoNest.com',
     password: 'admin123',
     userType: 'admin'
 };
@@ -145,7 +145,7 @@ async function setupSampleData() {
         console.log('✅ Sample problems created with boilerplate code');
         console.log('✅ Sample and hidden test cases created');
         console.log('\n🔑 Login Credentials:');
-        console.log('   Email: admin@codevm.com');
+        console.log('   Email: admin@AlgoNest.com');
         console.log('   Password: admin123');
 
     } catch (error) {

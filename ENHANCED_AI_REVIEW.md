@@ -99,7 +99,7 @@ node test-ai-with-problem.js
 
 ### Manual Testing
 1. Open http://localhost:5173
-2. Login as admin: `admin@codevm.com` / `admin123`
+2. Login as admin: `admin@AlgoNest.com` / `admin123`
 3. Open any problem
 4. Write code
 5. Click "Get AI Review"

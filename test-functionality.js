@@ -53,7 +53,7 @@ let authToken = '';
 let problemId = '';
 
 async function testFunctionality() {
-    console.log('🧪 Testing CodeVM Online Judge Functionality\n');
+    console.log('🧪 Testing AlgoNest Online Judge Functionality\n');
 
     try {
         // Test 1: User Registration

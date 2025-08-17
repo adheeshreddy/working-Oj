@@ -41,7 +41,7 @@ This guide will help you set up and test the AI review functionality using Googl
    ```
 
 2. Open http://localhost:5173 in your browser
-3. Login with admin credentials: `admin@codevm.com` / `admin123`
+3. Login with admin credentials: `admin@AlgoNest.com` / `admin123`
 4. Open any problem
 5. Write some code in the editor
 6. Click "Get AI Review" button

@@ -1,6 +1,6 @@
-# CodeVM Online Judge - Functionality Testing Guide
+# AlgoNest Online Judge - Functionality Testing Guide
 
-This guide will help you test the core functionality of the CodeVM Online Judge system.
+This guide will help you test the core functionality of the AlgoNest Online Judge system.
 
 ## 🚀 Quick Start
 
@@ -66,7 +66,7 @@ node setup-sample-data.js
 ```
 
 This will create:
-- Admin user (admin@codevm.com / admin123)
+- Admin user (admin@AlgoNest.com / admin123)
 - Sample problems with boilerplate code
 - Sample and hidden test cases
 
@@ -193,7 +193,7 @@ DEBUG=true
 When running `test-functionality.js`, you should see:
 
 ```
-🧪 Testing CodeVM Online Judge Functionality
+🧪 Testing AlgoNest Online Judge Functionality
 
 1. Testing User Registration...
 ✅ User registration successful
