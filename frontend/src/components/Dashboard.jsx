@@ -1,8 +1,29 @@
 // frontend/src/components/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// FIX: Added all necessary lucide-react icon imports
-import { User as UserIcon, Mail, BarChart, Clock, Award, Activity, CheckCircle, LogOut, ListChecks, Tag as TagIcon, Gauge, CheckCircle2, XCircle, MemoryStick, TrendingUp, Calendar, Code2 } from 'lucide-react';
+import { 
+    User as UserIcon, 
+    Mail, 
+    BarChart, 
+    Clock, 
+    Award, 
+    Activity, 
+    CheckCircle, 
+    LogOut, 
+    ListChecks, 
+    Tag as TagIcon, 
+    Gauge, 
+    CheckCircle2, 
+    XCircle, 
+    MemoryStick, 
+    TrendingUp, 
+    Calendar, 
+    Code2,
+    Target,
+    Trophy,
+    Zap
+} from 'lucide-react';
+
 const api_url = import.meta.env.VITE_SERVER;
 const USER_API_BASE_URL = ` ${api_url}/api/users`;
 const SUBMISSION_API_BASE_URL = ` ${api_url}/api/submissions`;
@@ -26,7 +47,7 @@ function Dashboard({ userRole, isAuthenticated }) {
             setMessage('Please log in to view your dashboard.');
             setIsLoading(false);
         }
-    }, [isAuthenticated, userRole]); // Re-fetch if auth status or role changes
+    }, [isAuthenticated, userRole]);
 
     const fetchDashboardData = async () => {
         setIsLoading(true);
@@ -60,476 +81,291 @@ function Dashboard({ userRole, isAuthenticated }) {
         }
     };
 
-    const getVerdictBadgeClass = (verdict) => {
+    const getVerdictStyle = (verdict) => {
         switch (verdict) {
-            case 'Accepted': return 'badge-success';
-            case 'Wrong Answer': return 'badge-danger';
-            case 'Time Limit Exceeded': return 'badge-warning';
-            case 'Memory Limit Exceeded': return 'badge-warning';
-            case 'Runtime Error': return 'badge-danger';
-            case 'Compilation Error': return 'badge-danger';
-            case 'Pending': return 'badge-secondary';
-            default: return 'badge-info';
-        }
-    };
-
-    const getVerdictIcon = (verdict) => {
-        switch (verdict) {
-            case 'Accepted': return <CheckCircle2 size={14} className="me-1" />;
-            case 'Pending': return <Clock size={14} className="me-1" />;
-            default: return <XCircle size={14} className="me-1" />;
+            case 'Accepted':
+                return { class: "bg-success text-white", icon: <CheckCircle2 size={16} /> };
+            case 'Pending':
+                return { class: "bg-secondary text-white", icon: <Clock size={16} /> };
+            default:
+                return { class: "bg-danger text-white", icon: <XCircle size={16} /> };
         }
     };
 
     if (isLoading) {
         return (
-            <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{background: 'linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #2d1b69 100%)'}}>
+            <div className="bg-light min-vh-100 d-flex align-items-center justify-content-center">
                 <div className="text-center">
-                    <div className="loading-spinner mb-4">
-                        <div className="spinner-pulse"></div>
-                    </div>
-                    <h4 className="text-white mb-2">Loading Dashboard</h4>
-                    <p className="text-white">Fetching your latest data...</p>
+                    <div className="spinner-border text-primary mb-3" role="status" style={{width: '3rem', height: '3rem'}}></div>
+                    <h4 className="text-dark mb-2">Loading Dashboard</h4>
+                    <p className="text-muted">Fetching your latest data...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <>
-            <style>{`
-                .dashboard-container {
-                    background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #2d1b69 100%);
-                    min-height: 100vh;
-                    position: relative;
-                }
-
-                .dashboard-container::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: 
-                        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
-                    pointer-events: none;
-                }
-
-                .glass-card {
-                    background: rgba(255, 255, 255, 0.05);
-                    backdrop-filter: blur(20px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 24px;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                .glass-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 1px;
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                }
-
-                .glass-card:hover {
-                    transform: translateY(-8px);
-                    background: rgba(255, 255, 255, 0.08);
-                    border-color: rgba(255, 255, 255, 0.2);
-                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-                }
-
-                .gradient-text {
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                }
-
-                .gradient-text-primary {
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                }
-
-                .gradient-text-success {
-                    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                }
-
-                .gradient-text-info {
-                    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                }
-
-                .stats-item {
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: 16px;
-                    padding: 1rem;
-                    transition: all 0.2s ease;
-                    margin-bottom: 0.5rem;
-                }
-
-                .stats-item:hover {
-                    background: rgba(255, 255, 255, 0.06);
-                    border-color: rgba(255, 255, 255, 0.1);
-                }
-
-                .activity-item {
-                    background: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: 12px;
-                    padding: 1rem;
-                    margin-bottom: 0.5rem;
-                    transition: all 0.2s ease;
-                }
-
-                .activity-item:hover {
-                    background: rgba(255, 255, 255, 0.05);
-                    transform: translateX(4px);
-                }
-
-                .badge-success {
-                    background: linear-gradient(135deg, #00b09b, #96c93d);
-                    color: white;
-                    border: none;
-                    padding: 0.5rem 1rem;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                }
-
-                .badge-danger {
-                    background: linear-gradient(135deg, #ff416c, #ff4b2b);
-                    color: white;
-                    border: none;
-                    padding: 0.5rem 1rem;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                }
-
-                .badge-warning {
-                    background: linear-gradient(135deg, #f093fb, #f5576c);
-                    color: white;
-                    border: none;
-                    padding: 0.5rem 1rem;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                }
-
-                .badge-secondary {
-                    background: linear-gradient(135deg, #4b6cb7, #182848);
-                    color: white;
-                    border: none;
-                    padding: 0.5rem 1rem;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                }
-
-                .badge-info {
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    color: white;
-                    border: none;
-                    padding: 0.5rem 1rem;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                }
-
-                .role-badge {
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 25px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-                }
-
-                .header-card {
-                    background: rgba(255, 255, 255, 0.03);
-                    backdrop-filter: blur(20px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 24px;
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                .header-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 2px;
-                    background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-                }
-
-                .loading-spinner {
-                    display: inline-block;
-                    position: relative;
-                }
-
-                .spinner-pulse {
-                    display: inline-block;
-                    width: 60px;
-                    height: 60px;
-                    border: 4px solid rgba(102, 126, 234, 0.3);
-                    border-radius: 50%;
-                    border-top-color: #667eea;
-                    animation: spin 1s ease-in-out infinite;
-                }
-
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
-                }
-
-                .icon-container {
-                    width: 80px;
-                    height: 80px;
-                    border-radius: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0 auto 1rem;
-                    position: relative;
-                }
-
-                .icon-container-primary {
-                    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-                    border: 1px solid rgba(102, 126, 234, 0.3);
-                }
-
-                .icon-container-success {
-                    background: linear-gradient(135deg, rgba(75, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
-                    border: 1px solid rgba(75, 172, 254, 0.3);
-                }
-
-                .icon-container-info {
-                    background: linear-gradient(135deg, rgba(247, 112, 154, 0.2), rgba(254, 225, 64, 0.2));
-                    border: 1px solid rgba(247, 112, 154, 0.3);
-                }
-
-                .submission-item {
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: 16px;
-                    padding: 1.25rem;
-                    margin-bottom: 1rem;
-                    transition: all 0.3s ease;
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                .submission-item:hover {
-                    background: rgba(255, 255, 255, 0.06);
-                    border-color: rgba(255, 255, 255, 0.1);
-                    transform: translateY(-2px);
-                }
-
-                .alert-modern {
-                    background: rgba(255, 255, 255, 0.05);
-                    backdrop-filter: blur(20px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
-                    color: white;
-                }
-            `}</style>
-
-            <div className="dashboard-container py-5">
-                <div className="container position-relative">
-                    {/* Modern Header */}
-                    <div className="header-card p-4 mb-5">
-                        <div className="row align-items-center">
-                            <div className="col-md-8">
-                                <h1 className="h2 fw-bold text-white mb-2">Welcome Back!</h1>
-                                <p className=" text-white mb-0 fs-5">
-                                    Ready to solve some problems today, <span className="gradient-text fw-bold">{userData?.name || 'Developer'}</span>?
-                                </p>
-                            </div>
-                            <div className="col-md-4 text-md-end">
-                                <div className="d-flex align-items-center justify-content-md-end gap-3">
-                                    <Calendar className="text-white" size={20} />
-                                    <span className="text-white">{new Date().toLocaleDateString('en-US', { 
-                                        weekday: 'long', 
-                                        year: 'numeric', 
-                                        month: 'long', 
-                                        day: 'numeric' 
-                                    })}</span>
-                                </div>
+        <div className="bg-light min-vh-100 py-5">
+            <div className="container">
+                {/* Header */}
+                <header className="bg-white shadow-sm p-4 mb-5 rounded-3 border">
+                    <div className="row align-items-center">
+                        <div className="col-md-8">
+                            <h1 className="h4 fw-bold mb-0 d-flex align-items-center text-dark">
+                                <BarChart size={26} className="me-2 text-primary" /> Dashboard
+                            </h1>
+                            <p className="text-muted mt-2">
+                                Welcome back, <span className="text-primary fw-semibold">{userData?.name || 'Developer'}</span>! 
+                                Ready to solve some problems today?
+                            </p>
+                        </div>
+                        <div className="col-md-4 text-md-end">
+                            <div className="d-flex align-items-center justify-content-md-end text-muted">
+                                <Calendar size={18} className="me-2" />
+                                <span className="small">{new Date().toLocaleDateString('en-US', { 
+                                    weekday: 'long', 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                })}</span>
                             </div>
                         </div>
                     </div>
+                </header>
 
-                    {message && (
-                        <div className="alert alert-modern alert-dismissible fade show mb-4" role="alert">
-                            <div className="d-flex align-items-center">
-                                <CheckCircle className="me-2" size={20} />
-                                {message}
-                            </div>
-                            <button type="button" className="btn-close btn-close-white" onClick={() => setMessage('')} aria-label="Close"></button>
-                        </div>
-                    )}
+                {message && (
+                    <div className="alert alert-info rounded-3 mb-4">
+                        {message}
+                        <button type="button" className="btn-close float-end" onClick={() => setMessage('')} aria-label="Close"></button>
+                    </div>
+                )}
 
-                    <div className="row g-4 mb-5">
-                        {/* Enhanced User Profile Card */}
-                        <div className="col-lg-4 col-md-6">
-                            <div className="glass-card h-100 p-4 text-center">
-                                <div className="icon-container icon-container-primary">
-                                    <UserIcon size={32} className=" text-white gradient-text-primary" />
+                {/* Top Stats Row - Quick Overview */}
+                <div className="row g-4 mb-5">
+                    <div className="col-lg-3 col-md-6">
+                        <div className="card shadow-sm border-0 rounded-3 h-100">
+                            <div className="card-body text-center p-4">
+                                <div className="d-flex align-items-center justify-content-center mb-3 bg-primary bg-opacity-10 rounded-circle mx-auto" style={{width: '60px', height: '60px', minWidth: '60px', minHeight: '60px'}}>
+                                    <Target size={24} className="text-primary" />
                                 </div>
-                                <h5 className="text-white fw-bold mb-2">{userData?.name || 'N/A'}</h5>
-                                <div className="d-flex align-items-center justify-content-center mb-3 text-white">
+                                <h3 className="h4 fw-bold text-dark mb-1">{userStats?.totalSubmissions || 0}</h3>
+                                <p className="text-muted small mb-0">Total Submissions</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="col-lg-3 col-md-6">
+                        <div className="card shadow-sm border-0 rounded-3 h-100">
+                            <div className="card-body text-center p-4">
+                                <div className="d-flex align-items-center justify-content-center mb-3 bg-success bg-opacity-10 rounded-circle mx-auto" style={{width: '60px', height: '60px', minWidth: '60px', minHeight: '60px'}}>
+                                    <Trophy size={24} className="text-success" />
+                                </div>
+                                <h3 className="h4 fw-bold text-dark mb-1">{userStats?.acceptedSubmissions || 0}</h3>
+                                <p className="text-muted small mb-0">Accepted Solutions</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="col-lg-3 col-md-6">
+                        <div className="card shadow-sm border-0 rounded-3 h-100">
+                            <div className="card-body text-center p-4">
+                                <div className="d-flex align-items-center justify-content-center mb-3 bg-info bg-opacity-10 rounded-circle mx-auto" style={{width: '60px', height: '60px', minWidth: '60px', minHeight: '60px'}}>
+                                    <Zap size={24} className="text-info" />
+                                </div>
+                                <h3 className="h4 fw-bold text-dark mb-1">{userStats?.solvedProblemsCount || 0}</h3>
+                                <p className="text-muted small mb-0">Problems Solved</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="col-lg-3 col-md-6">
+                        <div className="card shadow-sm border-0 rounded-3 h-100">
+                            <div className="card-body text-center p-4">
+                                <div className="d-flex align-items-center justify-content-center mb-3 bg-warning bg-opacity-10 rounded-circle mx-auto" style={{width: '60px', height: '60px', minWidth: '60px', minHeight: '60px'}}>
+                                    <Award size={24} className="text-warning" />
+                                </div>
+                                <h3 className="h4 fw-bold text-dark mb-1">
+                                    {userStats ? Math.round((userStats.acceptedSubmissions / (userStats.totalSubmissions || 1)) * 100) : 0}%
+                                </h3>
+                                <p className="text-muted small mb-0">Success Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Main Content Row */}
+                <div className="row g-4 mb-5">
+                    {/* User Profile Card - Left Side */}
+                    <div className="col-lg-4">
+                        <div className="card shadow-sm border-0 rounded-3 h-100">
+                            <div className="card-body p-4 text-center">
+                                <div className="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mx-auto mb-3" style={{width: '80px', height: '80px'}}>
+                                    <UserIcon size={32} className="text-primary" />
+                                </div>
+                                <h5 className="text-dark fw-bold mb-2">{userData?.name || 'N/A'}</h5>
+                                <div className="d-flex align-items-center justify-content-center mb-3 text-muted">
                                     <Mail size={16} className="me-2" />
                                     <span className="small">{userData?.email || 'N/A'}</span>
                                 </div>
-                                <span className="role-badge">{userRole}</span>
-                            </div>
-                        </div>
-
-                        {/* Enhanced Stats Card */}
-                        <div className="col-lg-4 col-md-6">
-                            <div className="glass-card h-100 p-4">
-                                <div className="icon-container icon-container-success">
-                                    <BarChart size={32} className=" text-white gradient-text-success" />
-                                </div>
-                                <h5 className="text-white fw-bold mb-3 text-center">Performance Stats</h5>
-                                {userStats ? (
-                                    <div className="stats-grid">
-                                        <div className="stats-item d-flex justify-content-between align-items-center">
-                                            <span className="text-white small">Total Submissions</span>
-                                            <span className="text-white fw-bold">{userStats.totalSubmissions}</span>
-                                        </div>
-                                        <div className="stats-item d-flex justify-content-between align-items-center">
-                                            <span className="text-white small">Accepted Solutions</span>
-                                            <span className="text-success fw-bold">{userStats.acceptedSubmissions}</span>
-                                        </div>
-                                        <div className="stats-item d-flex justify-content-between align-items-center">
-                                            <span className="text-white small">Problems Solved</span>
-                                            <span className="text-info fw-bold">{userStats.solvedProblemsCount}</span>
-                                        </div>
-                                        
-                                        <div className="mt-3">
-                                            <h6 className="text-white mb-2 small">Difficulty Breakdown</h6>
-                                            <div className="d-flex justify-content-between mb-1">
-                                                <span className="text-success small">Easy</span>
-                                                <span className="text-white small fw-bold">{userStats.difficultyStats.Easy || 0}</span>
+                                <span className={`badge px-3 py-2 rounded-pill fw-semibold ${
+                                    userRole === 'admin' ? 'bg-danger text-white' : 'bg-primary text-white'
+                                }`}>
+                                    {userRole?.toUpperCase()}
+                                </span>
+                                
+                                {/* Quick Stats in Profile */}
+                                {userStats && (
+                                    <div className="mt-4 pt-3 border-top">
+                                        <div className="row text-center">
+                                            <div className="col-4">
+                                                <div className="text-success fw-bold">{userStats.difficultyStats?.Easy || 0}</div>
+                                                <div className="text-muted small">Easy</div>
                                             </div>
-                                            <div className="d-flex justify-content-between mb-1">
-                                                <span className="text-warning small">Medium</span>
-                                                <span className="text-white small fw-bold">{userStats.difficultyStats.Medium || 0}</span>
+                                            <div className="col-4">
+                                                <div className="text-warning fw-bold">{userStats.difficultyStats?.Medium || 0}</div>
+                                                <div className="text-muted small">Medium</div>
                                             </div>
-                                            <div className="d-flex justify-content-between">
-                                                <span className="text-danger small">Hard</span>
-                                                <span className="text-white small fw-bold">{userStats.difficultyStats.Hard || 0}</span>
+                                            <div className="col-4">
+                                                <div className="text-danger fw-bold">{userStats.difficultyStats?.Hard || 0}</div>
+                                                <div className="text-muted small">Hard</div>
                                             </div>
                                         </div>
-
-                                        {Object.entries(userStats.tagStats).length > 0 && (
-                                            <div className="mt-3">
-                                                <h6 className="text-white mb-2 small">Top Tags</h6>
-                                                {Object.entries(userStats.tagStats).slice(0, 3).map(([tag, count]) => (
-                                                    <div key={tag} className="d-flex justify-content-between align-items-center mb-1">
-                                                        <div className="d-flex align-items-center">
-                                                            <TagIcon size={12} className="me-1 text-white"/>
-                                                            <span className="text-white small">{tag}</span>
-                                                        </div>
-                                                        <span className="text-white small fw-bold">{count}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-4">
-                                        <Code2 size={48} className="text-white mb-3" />
-                                        <p className="text-white">Start solving problems to see your stats!</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Enhanced Recent Submissions Card */}
-                        <div className="col-lg-4 col-md-12">
-                            <div className="glass-card h-100 p-4">
-                                <div className="icon-container icon-container-info">
-                                    <ListChecks size={32} className="text-white gradient-text-info" />
-                                </div>
-                                <h5 className="text-white fw-bold mb-3 text-center">Recent Submissions</h5>
-                                {recentSubmissions.length > 0 ? (
-                                    <div className="submissions-list" style={{maxHeight: '350px', overflowY: 'auto'}}>
-                                        {recentSubmissions.map(sub => (
-                                            <div key={sub._id} className="submission-item">
-                                                <div className="d-flex justify-content-between align-items-start mb-2">
-                                                    <h6 className="text-info mb-1 small fw-bold">{sub.problemId?.title || 'N/A'}</h6>
-                                                    <span className="text-white small">{new Date(sub.submittedAt).toLocaleDateString()}</span>
-                                                </div>
-                                                <span className={`badge ${getVerdictBadgeClass(sub.verdict)} d-inline-flex align-items-center`}>
-                                                    {getVerdictIcon(sub.verdict)}
-                                                    {sub.verdict}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-4">
-                                        <TrendingUp size={48} className="text-white mb-3" />
-                                        <p className="text-white">No submissions yet. Start coding!</p>
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Enhanced Activity Section */}
-                    <div className="row g-4">
-                        <div className="col-12">
-                            <div className="glass-card p-4">
-                                <div className="d-flex align-items-center mb-4">
-                                    <Activity size={24} className="gradient-text-info me-3" />
-                                    <h5 className="text-white fw-bold mb-0">Recent Activity</h5>
-                                </div>
+                    {/* Recent Submissions - Center */}
+                    <div className="col-lg-8">
+                        <div className="card shadow-sm border-0 rounded-3 h-100">
+                            <div className="card-body p-4">
+                                <h5 className="fw-semibold text-dark mb-4 d-flex align-items-center">
+                                    <ListChecks size={20} className="me-2 text-primary" /> 
+                                    Recent Submissions
+                                </h5>
+                                
+                                {recentSubmissions.length > 0 ? (
+                                    <div className="submission-list" style={{maxHeight: '400px', overflowY: 'auto'}}>
+                                        {recentSubmissions.map(sub => {
+                                            const verdict = getVerdictStyle(sub.verdict);
+                                            return (
+                                                <div key={sub._id} className="list-group-item list-group-item-action border-0 mb-3 shadow-sm rounded-3 p-3">
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <div className="flex-grow-1">
+                                                            <h6 className="mb-1 text-dark fw-semibold">
+                                                                {sub.problemId?.title || 'N/A'}
+                                                            </h6>
+                                                            <div className="d-flex align-items-center gap-2 mb-2">
+                                                                <span className={`badge rounded-pill ${
+                                                                    sub.problemId?.difficulty === 'Easy' ? 'bg-success' :
+                                                                    sub.problemId?.difficulty === 'Medium' ? 'bg-warning text-dark' :
+                                                                    sub.problemId?.difficulty === 'Hard' ? 'bg-danger' : 'bg-secondary'
+                                                                }`}>
+                                                                    {sub.problemId?.difficulty || 'N/A'}
+                                                                </span>
+                                                                <span className="text-muted small">
+                                                                    {sub.language?.toUpperCase()} • {new Date(sub.submittedAt).toLocaleDateString()}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-end">
+                                                            <span className={`badge d-flex align-items-center gap-1 ${verdict.class} px-3 py-2 mb-2`}>
+                                                                {verdict.icon} {sub.verdict}
+                                                            </span>
+                                                            <div className="text-muted small">
+                                                                <Clock size={12} className="me-1" />
+                                                                {sub.executionTime ? `${sub.executionTime} ms` : 'N/A'}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-5 text-muted">
+                                        <TrendingUp size={48} className="mb-3 opacity-50" />
+                                        <h6 className="text-muted">No submissions yet</h6>
+                                        <p className="small">Start coding to see your progress!</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Bottom Section - Stats & Activity */}
+                <div className="row g-4">
+                    {/* Detailed Stats */}
+                    <div className="col-lg-6">
+                        <div className="card shadow-sm border-0 rounded-3 h-100">
+                            <div className="card-body p-4">
+                                <h5 className="fw-semibold text-dark mb-4 d-flex align-items-center">
+                                    <BarChart size={20} className="me-2 text-primary" /> 
+                                    Performance Analytics
+                                </h5>
+                                
+                                {userStats && Object.entries(userStats.tagStats || {}).length > 0 ? (
+                                    <div>
+                                        <h6 className="text-dark mb-3 small fw-semibold">Top Problem Categories</h6>
+                                        <div className="row g-3">
+                                            {Object.entries(userStats.tagStats).slice(0, 6).map(([tag, count]) => (
+                                                <div key={tag} className="col-md-6">
+                                                    <div className="border rounded-3 p-3 bg-light">
+                                                        <div className="d-flex justify-content-between align-items-center">
+                                                            <div className="d-flex align-items-center">
+                                                                <TagIcon size={16} className="me-2 text-primary"/>
+                                                                <span className="text-dark small fw-semibold">{tag}</span>
+                                                            </div>
+                                                            <span className="badge bg-primary rounded-pill">{count}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-5 text-muted">
+                                        <Code2 size={48} className="mb-3 opacity-50" />
+                                        <h6 className="text-muted">No stats available</h6>
+                                        <p className="small">Start solving problems to see detailed analytics!</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Recent Activity */}
+                    <div className="col-lg-6">
+                        <div className="card shadow-sm border-0 rounded-3 h-100">
+                            <div className="card-body p-4">
+                                <h5 className="fw-semibold text-dark mb-4 d-flex align-items-center">
+                                    <Activity size={20} className="me-2 text-primary" /> 
+                                    Recent Activity
+                                </h5>
                                 
                                 {userActivity.length > 0 ? (
-                                    <div className="activity-timeline" style={{maxHeight: '400px', overflowY: 'auto'}}>
+                                    <div className="activity-timeline" style={{maxHeight: '300px', overflowY: 'auto'}}>
                                         {userActivity.map((activity, index) => (
-                                            <div key={index} className="activity-item">
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="d-flex align-items-center">
-                                                        <div className="activity-dot me-3" style={{
-                                                            width: '8px',
-                                                            height: '8px',
-                                                            borderRadius: '50%',
-                                                            background: 'linear-gradient(135deg, #667eea, #764ba2)'
-                                                        }}></div>
-                                                        <span className="text-white">{activity.description}</span>
+                                            <div key={index} className="border-start border-primary border-3 ps-3 pb-3 mb-3 position-relative">
+                                                <div className="position-absolute bg-primary rounded-circle" 
+                                                     style={{width: '8px', height: '8px', left: '-5px', top: '8px'}}></div>
+                                                <div className="d-flex justify-content-between align-items-start">
+                                                    <div className="flex-grow-1">
+                                                        <p className="text-dark mb-1 small">{activity.description}</p>
+                                                        <span className="text-muted small">
+                                                            {new Date(activity.timestamp).toLocaleString()}
+                                                        </span>
                                                     </div>
-                                                    <span className="text-white small">{new Date(activity.timestamp).toLocaleString()}</span>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-5">
-                                        <Activity size={64} className="text-white mb-3" />
-                                        <h6 className="text-white">No recent activity</h6>
-                                        <p className="text-white small">Your coding journey starts here!</p>
+                                    <div className="text-center py-5 text-muted">
+                                        <Activity size={48} className="mb-3 opacity-50" />
+                                        <h6 className="text-muted">No recent activity</h6>
+                                        <p className="small">Your coding journey starts here!</p>
                                     </div>
                                 )}
                             </div>
@@ -537,7 +373,7 @@ function Dashboard({ userRole, isAuthenticated }) {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 

@@ -9,10 +9,10 @@
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
-  filter: drop-shadow(0 0 2em #00c6fb88);
+  filter: drop-shadow(0 0 2em rgba(15, 118, 110, 0.5));
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #7f53acbb);
+  filter: drop-shadow(0 0 2em rgba(20, 184, 166, 0.7));
 }
 .card {
   background: rgba(255,255,255,0.7);
@@ -25,5 +25,5 @@
   -webkit-backdrop-filter: blur(16px);
 }
 .read-the-docs {
-  color: #7f53ac;
+  color: #0f766e;
 }
